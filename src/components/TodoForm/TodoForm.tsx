@@ -10,11 +10,17 @@ const TodoForm = () => {
     title: "",
     description: "",
   });
-  const { addTodo } = useContext(TodoContext)!;
 
+  const { dispatch } = useContext(TodoContext)!;
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    addTodo(state.title, state.description);
+    dispatch({
+      type: "ADD_TODO",
+      payload: {
+        title: state.title,
+        description: state.description,
+      },
+    });
     setState({ title: "", description: "" });
   };
 

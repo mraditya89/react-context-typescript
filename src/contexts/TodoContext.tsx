@@ -1,5 +1,5 @@
-import { createContext, ReactNode, useEffect, useState } from "react";
-import { v1 as uuid } from "uuid";
+import React, { createContext, ReactNode, useEffect, useReducer } from "react";
+import { todoReducer } from "../reducers/todoReducer";
 
 export interface ITodo {
   id: string;
@@ -13,8 +13,7 @@ interface Props {
 
 export const TodoContext = createContext<{
   todos: ITodo[];
-  addTodo: (title: string, description: string) => void;
-  removeTodo: (id: string) => void;
+  dispatch: React.Dispatch<any>;
 } | null>(null);
 
 const getInitialTodo = (): ITodo[] => {
@@ -22,24 +21,15 @@ const getInitialTodo = (): ITodo[] => {
   if (!myTodosStr) return [];
   return JSON.parse(myTodosStr);
 };
-export const TodoContextProvider = (props: Props) => {
-  const [todos, setTodos] = useState<ITodo[]>(getInitialTodo());
-  const addTodo = (title: string, description: string): void => {
-    setTodos([...todos, { id: uuid(), title, description }]);
-  };
-
-  const removeTodo = (id: string): void => {
-    const filteredTodo: ITodo[] = todos.filter((todo) => todo.id !== id);
-    setTodos(filteredTodo);
-  };
-
+export const TodoContextProvider: React.FC<Props> = ({ children }) => {
+  const [todos, dispatch] = useReducer(todoReducer, [], getInitialTodo);
   useEffect(() => {
     sessionStorage.setItem("myTodos", JSON.stringify(todos));
   }, [todos]);
 
   return (
-    <TodoContext.Provider value={{ todos, addTodo, removeTodo }}>
-      {props.children}
+    <TodoContext.Provider value={{ todos, dispatch }}>
+      {children}
     </TodoContext.Provider>
   );
 };
